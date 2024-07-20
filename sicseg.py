@@ -67,11 +67,14 @@ info_graficos = [
 
 # Función para cargar datos de contrataciones
 @st.cache_data
+
 def load_contratos_data():
-    url = "https://www.datos.gov.co/resource/jbjy-vk9h.csv?$query=SELECT%0A%20%20%60nombre_entidad%60%2C%0A%20%20%60nit_entidad%60%2C%0A%20%20%60departamento%60%2C%0A%20%20%60ciudad%60%2C%0A%20%20%60localizaci_n%60%2C%0A%20%20%60orden%60%2C%0A%20%20%60sector%60%2C%0A%20%20%60rama%60%2C%0A%20%20%60entidad_centralizada%60%2C%0A%20%20%60proceso_de_compra%60%2C%0A%20%20%60id_contrato%60%2C%0A%20%20%60referencia_del_contrato%60%2C%0A%20%20%60estado_contrato%60%2C%0A%20%20%60codigo_de_categoria_principal%60%2C%0A%20%20%60descripcion_del_proceso%60%2C%0A%20%20%60tipo_de_contrato%60%2C%0A%20%20%60modalidad_de_contratacion%60%2C%0A%20%20%60justificacion_modalidad_de%60%2C%0A%20%20%60fecha_de_firma%60%2C%0A%20%20%60fecha_de_inicio_del_contrato%60%2C%0A%20%20%60fecha_de_fin_del_contrato%60%2C%0A%20%20%60fecha_de_inicio_de_ejecucion%60%2C%0A%20%20%60fecha_de_fin_de_ejecucion%60%2C%0A%20%20%60condiciones_de_entrega%60%2C%0A%20%20%60tipodocproveedor%60%2C%0A%20%20%60documento_proveedor%60%2C%0A%20%20%60proveedor_adjudicado%60%2C%0A%20%20%60es_grupo%60%2C%0A%20%20%60es_pyme%60%2C%0A%20%20%60habilita_pago_adelantado%60%2C%0A%20%20%60liquidaci_n%60%2C%0A%20%20%60obligaci_n_ambiental%60%2C%0A%20%20%60obligaciones_postconsumo%60%2C%0A%20%20%60reversion%60%2C%0A%20%20%60origen_de_los_recursos%60%2C%0A%20%20%60destino_gasto%60%2C%0A%20%20%60valor_del_contrato%60%2C%0A%20%20%60valor_de_pago_adelantado%60%2C%0A%20%20%60valor_facturado%60%2C%0A%20%20%60valor_pendiente_de_pago%60%2C%0A%20%20%60valor_pagado%60%2C%0A%20%20%60valor_amortizado%60%2C%0A%20%20%60valor_pendiente_de%60%2C%0A%20%20%60valor_pendiente_de_ejecucion%60%2C%0A%20%20%60estado_bpin%60%2C%0A%20%20%60c_digo_bpin%60%2C%0A%20%20%60anno_bpin%60%2C%0A%20%20%60saldo_cdp%60%2C%0A%20%20%60saldo_vigencia%60%2C%0A%20%20%60espostconflicto%60%2C%0A%20%20%60dias_adicionados%60%2C%0A%20%20%60puntos_del_acuerdo%60%2C%0A%20%20%60pilares_del_acuerdo%60%2C%0A%20%20%60urlproceso%60%2C%0A%20%20%60nombre_representante_legal%60%2C%0A%20%20%60nacionalidad_representante_legal%60%2C%0A%20%20%60domicilio_representante_legal%60%2C%0A%20%20%60tipo_de_identificaci_n_representante_legal%60%2C%0A%20%20%60identificaci_n_representante_legal%60%2C%0A%20%20%60g_nero_representante_legal%60%2C%0A%20%20%60presupuesto_general_de_la_nacion_pgn%60%2C%0A%20%20%60sistema_general_de_participaciones%60%2C%0A%20%20%60sistema_general_de_regal_as%60%2C%0A%20%20%60recursos_propios_alcald_as_gobernaciones_y_resguardos_ind_genas_%60%2C%0A%20%20%60recursos_de_credito%60%2C%0A%20%20%60recursos_propios%60%2C%0A%20%20%60ultima_actualizacion%60%2C%0A%20%20%60codigo_entidad%60%2C%0A%20%20%60codigo_proveedor%60%2C%0A%20%20%60fecha_inicio_liquidacion%60%2C%0A%20%20%60fecha_fin_liquidacion%60%2C%0A%20%20%60objeto_del_contrato%60%2C%0A%20%20%60duraci_n_del_contrato%60%2C%0A%20%20%60nombre_del_banco%60%2C%0A%20%20%60tipo_de_cuenta%60%2C%0A%20%20%60n_mero_de_cuenta%60%2C%0A%20%20%60el_contrato_puede_ser_prorrogado%60%2C%0A%20%20%60fecha_de_notificaci_n_de_prorrogaci_n%60%0AWHERE%0A%20%20caseless_one_of(%60departamento%60%2C%20%22Antioquia%22)%0A%20%20AND%20caseless_one_of(%60ciudad%60%2C%20%22san%20luis%22)"  # Reemplazar con la URL correcta
-    response = requests.get(url)
-    response.raise_for_status()
-    data = pd.read_csv(io.StringIO(response.text))
+    url = "https://www.datos.gov.co/resource/jbjy-vk9h.csv?$query=SELECT%0A%20%20%60nombre_entidad%60%2C%0A%20%20%60nit_entidad%60%2C%0A%20%20%60departamento%60%2C%0A%20%20%60ciudad%60%2C%0A%20%20%60localizaci_n%60%2C%0A%20%20%60orden%60%2C%0A%20%20%60sector%60%2C%0A%20%20%60rama%60%2C%0A%20%20%60entidad_centralizada%60%2C%0A%20%20%60proceso_de_compra%60%2C%0A%20%20%60id_contrato%60%2C%0A%20%20%60referencia_del_contrato%60%2C%0A%20%20%60estado_contrato%60%2C%0A%20%20%60codigo_de_categoria_principal%60%2C%0A%20%20%60descripcion_del_proceso%60%2C%0A%20%20%60tipo_de_contrato%60%2C%0A%20%20%60modalidad_de_contratacion%60%2C%0A%20%20%60justificacion_modalidad_de%60%2C%0A%20%20%60fecha_de_firma%60%2C%0A%20%20%60fecha_de_inicio_del_contrato%60%2C%0A%20%20%60fecha_de_fin_del_contrato%60%2C%0A%20%20%60fecha_de_inicio_de_ejecucion%60%2C%0A%20%20%60fecha_de_fin_de_ejecucion%60%2C%0A%20%20%60condiciones_de_entrega%60%2C%0A%20%20%60tipodocproveedor%60%2C%0A%20%20%60documento_proveedor%60%2C%0A%20%20%60proveedor_adjudicado%60%2C%0A%20%20%...
+    df = pd.read_csv(url)
+    df['fecha_firma'] = pd.to_datetime(df['fecha_firma'])
+    df['url_proceso'] = df['url_proceso'].apply(lambda x: f'<a href="{x}" target="_blank">Link</a>')
+    return df
+
 
     columnas_deseadas = [
         'nombre_entidad', 'objeto_del_contrato', 'tipo_de_contrato', 'duraci_n_del_contrato',
@@ -106,7 +109,7 @@ with tab2:
 
     # Cargar y mostrar datos de contrataciones
     contratos_data = load_contratos_data()
-    st.dataframe(contratos_data)
+    st.markdown(contratos_data.to_html(escape=False), unsafe_allow_html=True)
 
 # Nota del creador
 st.markdown("---")
