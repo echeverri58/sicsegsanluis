@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import requests
-import io
 from urls import urls
 
 # Configuración de la página
@@ -52,22 +50,41 @@ def create_chart(url, titulo, color):
 # Información de los gráficos
 info_graficos = urls[:-1]  # Excluye la URL de contratos para el loop general
 
-# Crear y mostrar los gráficos para los datos de seguridad
-for i, info in enumerate(info_graficos):
-    fig = create_chart(info['url'], info['titulo'], palette[i % len(palette)])
-    st.plotly_chart(fig, use_container_width=True)
+# Crear pestañas
+tab1, tab2 = st.tabs(["Gráficas de Seguridad", "Contratos"])
 
-# Procesar y mostrar los datos de contratos
-contracts_url = urls[-1]['url']
-contracts_title = urls[-1]['titulo']
+with tab1:
+    # Mostrar los gráficos para los datos de seguridad
+    for i in range(0, len(info_graficos), 3):
+        cols = st.columns(3)
+        for j, col in enumerate(cols):
+            if i + j < len(info_graficos):
+                with col:
+                    info = info_graficos[i + j]
+                    fig = create_chart(info['url'], info['titulo'], palette[(i + j) % len(palette)])
+                    st.plotly_chart(fig, use_container_width=True)
 
-# Función para cargar datos de contratos
-def load_contract_data(url):
-    df = pd.read_csv(url)
-    return df
+with tab2:
+    # Procesar y mostrar los datos de contratos
+    contracts_url = urls[-1]['url']
+    contracts_title = urls[-1]['titulo']
 
-contracts_df = load_contract_data(contracts_url)
+    # Función para cargar datos de contratos
+    def load_contract_data(url):
+        df = pd.read_csv(url)
+        return df
 
-# Mostrar tabla de contratos
-st.subheader(contracts_title)
-st.dataframe(contracts_df)
+    contracts_df = load_contract_data(contracts_url)
+
+    # Aplicar estilo a la tabla de contratos
+    st.subheader(contracts_title)
+    styled_contracts_df = contracts_df.style.set_table_styles(
+        [{
+            'selector': 'tbody tr:nth-child(even)',
+            'props': [('background-color', '#f0f8ff')]
+        }, {
+            'selector': 'tbody tr:nth-child(odd)',
+            'props': [('background-color', 'white')]
+        }]
+    )
+    st.dataframe(styled_contracts_df, use_container_width=True)
