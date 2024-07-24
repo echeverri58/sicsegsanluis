@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import requests
-import io
 
 # Configuración de la página
 st.set_page_config(layout="wide", page_title="Sistema de Información y Seguridad Ciudadana - San Luis")
@@ -35,16 +33,26 @@ def create_chart(url, titulo, color):
         y=cantidad_por_año.values,
         labels={'x': 'Año', 'y': 'Cantidad'},
         title=titulo,
-        text=cantidad_por_año.values
+        text=cantidad_por_año.values,
+        color_discrete_sequence=[color]
     )
 
     fig.update_layout(
         showlegend=False,
         xaxis=dict(type='category', categoryorder='category ascending'),
-        xaxis_tickangle=-90
+        xaxis_tickangle=-90,
+        annotations=[{
+            'text': 'Datos extraídos automáticamente del Ministerio de Defensa',
+            'xref': 'paper',
+            'yref': 'paper',
+            'x': 0.5,
+            'y': -0.2,
+            'showarrow': False,
+            'font': {'size': 12}
+        }]
     )
 
-    fig.update_traces(marker_color=color, texttemplate='%{text}', textposition='outside')
+    fig.update_traces(texttemplate='%{text}', textposition='outside')
 
     return fig
 
@@ -65,49 +73,51 @@ info_graficos = [
     {'url': "https://www.datos.gov.co/resource/gepp-dxcs.csv?$query=SELECT%0A%20%20%60fecha_hecho%60%2C%0A%20%20%60cod_depto%60%2C%0A%20%20%60departamento%60%2C%0A%20%20%60cod_muni%60%2C%0A%20%20%60municipio%60%2C%0A%20%20%60zona%60%2C%0A%20%20%60cantidad%60%0AWHERE%0A%20%20caseless_one_of(%60departamento%60%2C%20%22ANTIOQUIA%22)%0A%20%20AND%20caseless_one_of(%60municipio%60%2C%20%22SAN%20LUIS%22)%0AORDER%20BY%20%60fecha_hecho%60%20DESC%20NULL%20LAST", 'titulo': 'Violencia intrafamiliar en San Luis'},
 ]
 
-# Función para cargar datos de contrataciones
-@st.cache_data
-def load_contratos_data():
-    url = "https://www.datos.gov.co/resource/jbjy-vk9h.csv?$query=SELECT%0A%20%20%60nombre_entidad%60%2C%0A%20%20%60nit_entidad%60%2C%0A%20%20%60departamento%60%2C%0A%20%20%60ciudad%60%2C%0A%20%20%60localizaci_n%60%2C%0A%20%20%60orden%60%2C%0A%20%20%60sector%60%2C%0A%20%20%60rama%60%2C%0A%20%20%60entidad_centralizada%60%2C%0A%20%20%60proceso_de_compra%60%2C%0A%20%20%60id_contrato%60%2C%0A%20%20%60referencia_del_contrato%60%2C%0A%20%20%60estado_contrato%60%2C%0A%20%20%60codigo_de_categoria_principal%60%2C%0A%20%20%60descripcion_del_proceso%60%2C%0A%20%20%60tipo_de_contrato%60%2C%0A%20%20%60modalidad_de_contratacion%60%2C%0A%20%20%60justificacion_modalidad_de%60%2C%0A%20%20%60fecha_de_firma%60%2C%0A%20%20%60fecha_de_inicio_del_contrato%60%2C%0A%20%20%60fecha_de_fin_del_contrato%60%2C%0A%20%20%60fecha_de_inicio_de_ejecucion%60%2C%0A%20%20%60fecha_de_fin_de_ejecucion%60%2C%0A%20%20%60condiciones_de_entrega%60%2C%0A%20%20%60tipodocproveedor%60%2C%0A%20%20%60documento_proveedor%60%2C%0A%20%20%60proveedor_adjudicado%60%2C%0A%20%20%60es_grupo%60%2C%0A%20%20%60es_pyme%60%2C%0A%20%20%60habilita_pago_adelantado%60%2C%0A%20%20%60liquidaci_n%60%2C%0A%20%20%60obligaci_n_ambiental%60%2C%0A%20%20%60obligaciones_postconsumo%60%2C%0A%20%20%60reversion%60%2C%0A%20%20%60origen_de_los_recursos%60%2C%0A%20%20%60destino_gasto%60%2C%0A%20%20%60valor_del_contrato%60%2C%0A%20%20%60valor_de_pago_adelantado%60%2C%0A%20%20%60valor_facturado%60%2C%0A%20%20%60valor_pendiente_de_pago%60%2C%0A%20%20%60valor_pagado%60%2C%0A%20%20%60valor_amortizado%60%2C%0A%20%20%60valor_pendiente_de%60%2C%0A%20%20%60valor_pendiente_de_ejecucion%60%2C%0A%20%20%60estado_bpin%60%2C%0A%20%20%60c_digo_bpin%60%2C%0A%20%20%60anno_bpin%60%2C%0A%20%20%60saldo_cdp%60%2C%0A%20%20%60saldo_vigencia%60%2C%0A%20%20%60espostconflicto%60%2C%0A%20%20%60dias_adicionados%60%2C%0A%20%20%60puntos_del_acuerdo%60%2C%0A%20%20%60pilares_del_acuerdo%60%2C%0A%20%20%60urlproceso%60%2C%0A%20%20%60nombre_representante_legal%60%2C%0A%20%20%60nacionalidad_representante_legal%60%2C%0A%20%20%60domicilio_representante_legal%60%2C%0A%20%20%60tipo_de_identificaci_n_representante_legal%60%2C%0A%20%20%60identificaci_n_representante_legal%60%2C%0A%20%20%60g_nero_representante_legal%60%2C%0A%20%20%60presupuesto_general_de_la_nacion_pgn%60%2C%0A%20%20%60sistema_general_de_participaciones%60%2C%0A%20%20%60sistema_general_de_regal_as%60%2C%0A%20%20%60recursos_propios_alcald_as_gobernaciones_y_resguardos_ind_genas_%60%2C%0A%20%20%60recursos_de_credito%60%2C%0A%20%20%60recursos_propios%60%2C%0A%20%20%60ultima_actualizacion%60%2C%0A%20%20%60codigo_entidad%60%2C%0A%20%20%60codigo_proveedor%60%2C%0A%20%20%60fecha_inicio_liquidacion%60%2C%0A%20%20%60fecha_fin_liquidacion%60%2C%0A%20%20%60objeto_del_contrato%60%2C%0A%20%20%60duraci_n_del_contrato%60%2C%0A%20%20%60nombre_del_banco%60%2C%0A%20%20%60tipo_de_cuenta%60%2C%0A%20%20%60n_mero_de_cuenta%60%2C%0A%20%20%60el_contrato_puede_ser_prorrogado%60%2C%0A%20%20%60fecha_de_notificaci_n_de_prorrogaci_n%60%0AWHERE%0A%20%20caseless_one_of(%60departamento%60%2C%20%22Antioquia%22)%0A%20%20AND%20caseless_one_of(%60ciudad%60%2C%20%22san%20luis%22)"  # Reemplazar con la URL correcta
-    response = requests.get(url)
-    response.raise_for_status()
-    data = pd.read_csv(io.StringIO(response.text))
+# Tabs para las secciones
+tabs = st.tabs(["Delitos", "Contratos"])
 
-    columnas_deseadas = [
-        'nombre_entidad', 'objeto_del_contrato', 'tipo_de_contrato', 'duraci_n_del_contrato',
-        'modalidad_de_contratacion', 'valor_del_contrato', 'fecha_de_firma',
-        'fecha_de_inicio_del_contrato', 'fecha_de_fin_del_contrato',
-        'fecha_de_inicio_de_ejecucion', 'fecha_de_fin_de_ejecucion', 'urlproceso',
-        'nombre_representante_legal', 'nacionalidad_representante_legal',
-        'domicilio_representante_legal', 'tipo_de_identificaci_n_representante_legal',
-        'identificaci_n_representante_legal'
-    ]
+with tabs[0]:
+    st.header("Delitos")
+    cols = st.columns(3)
+    for i, info in enumerate(info_graficos):
+        fig = create_chart(info['url'], info['titulo'], palette[i % len(palette)])
+        cols[i % 3].plotly_chart(fig)
+        cols[i % 3].download_button(
+            label="Descargar gráfico",
+            data=fig.to_image(format="png"),
+            file_name=f"{info['titulo']}.png",
+            mime="image/png"
+        )
 
-    return data[columnas_deseadas]
+with tabs[1]:
+    st.header("Contratos")
+    
+    # Función para cargar datos de contrataciones
+    @st.cache_data
+    def load_contratos_data():
+        url = "https://www.datos.gov.co/resource/jbjy-vk9h.csv?$query=SELECT%0A%20%20%60nombre_entidad%60%2C%0A%20%20%60nit_entidad%60%2C%0A%20%20%60departamento%60%2C%0A%20%20%60ciudad%60%2C%0A%20%20%60localizaci_n%60%2C%0A%20%20%60orden%60%2C%0A%20%20%60sector%60%2C%0A%20%20%60rama%60%2C%0A%20%20%60entidad_centralizada%60%2C%0A%20%20%60proceso_de_compra%60%2C%0A%20%20%60id_contrato%60%2C%0A%20%20%60referencia_del_contrato%60%2C%0A%20%20%60estado_contrato%60%2C%0A%20%20%60codigo_de_categoria_principal%60%2C%0A%20%20%60descripcion_del_proceso%60%2C%0A%20%20%60tipo_de_contrato%60%2C%0A%20%20%60modalidad_de_contratacion%60%2C%0A%20%20%60justificacion_modalidad_de%60%2C%0A%20%20%60fecha_de_firma%60%2C%0A%20%20%60fecha_de_inicio_del_contrato%60%2C%0A%20%20%60fecha_de_fin_del_contrato%60%2C%0A%20%20%60fecha_de_inicio_de_ejecucion%60%2C%0A%20%20%60fecha_de_fin_de_ejecucion%60%2C%0A%20%20%60condiciones_de_entrega%60%2C%0A%20%20%60tipodocproveedor%60%2C%0A%20%20%60documento_proveedor%60%2C%0A%20%20%60proveedor_adjudicado%60%2C%0A%20%20%60es_grupo%60%2C%0A%20%20%60es_pyme%60%2C%0A%20%20%60habilita_pago_adelantado%60%2C%0A%20%20%60liquidaci_n%60%2C%0A%20%20%60obligaci_n_ambiental%60%2C%0A%20%20%60obligaciones_postconsumo%60%2C%0A%20%20%60reversion%60%2C%0A%20%20%60origen_de_los_recursos%60%2C%0A%20%20%60destino_gasto%60%2C%0A%20%20%60valor_del_contrato%60%2C%0A%20%20%60valor_de_pago_adelantado%60%2C%0A%20%20%60valor_facturado%60%2C%0A%20%20%60valor_pendiente_de_pago%60%2C%0A%20%20%60valor_pagado%60%2C%0A%20%20%60valor_amortizado%60%2C%0A%20%20%60valor_pendiente_de%60%2C%0A%20%20%60valor_pendiente_de_ejecucion%60%2C%0A%20%20%60estado_bpin%60%2C%0A%20%20%60c_digo_bpin%60%2C%0A%20%20%60anno_bpin%60%2C%0A%20%20%60saldo_cdp%60%2C%0A%20%20%60saldo_vigencia%60%2C%0A%20%20%60espostconflicto%60%2C%0A%20%20%60dias_adicionados%60%2C%0A%20%20%60puntos_del_acuerdo%60%2C%0A%20%20%60pilares_del_acuerdo%60%2C%0A%20%20%60urlproceso%60%2C%0A%20%20%60nombre_representante_legal%60%2C%0A%20%20%60nacionalidad_representante_legal%60%2C%0A%20%20%60domicilio_representante_legal%60%2C%0A%20%20%60tipo_de_identificaci_n_representante_legal%60%2C%0A%20%20%60identificaci_n_representante_legal%60%2C%0A%20%20%60g_nero_representante_legal%60%2C%0A%20%20%60presupuesto_general_de_la_nacion_pgn%60%2C%0A%20%20%60sistema_general_de_participaciones%60%2C%0A%20%20%60sistema_general_de_regal_as%60%2C%0A%20%20%60recursos_propios_alcald_as_gobernaciones_y_resguardos_ind_genas_%60%2C%0A%20%20%60recursos_de_credito%60%2C%0A%20%20%60recursos_propios%60%2C%0A%20%20%60ultima_actualizacion%60%2C%0A%20%20%60codigo_entidad%60%2C%0A%20%20%60codigo_proveedor%60%2C%0A%20%20%60fecha_inicio_liquidacion%60%2C%0A%20%20%60fecha_fin_liquidacion%60%2C%0A%20%20%60objeto_del_contrato%60%2C%0A%20%20%60duraci_n_del_contrato%60%2C%0A%20%20%60nombre_del_banco%60%2C%0A%20%20%60tipo_de_cuenta%60%2C%0A%20%20%60n_mero_de_cuenta%60%2C%0A%20%20%60el_contrato_puede_ser_prorrogado%60%2C%0A%20%20%60fecha_de_notificaci_n_de_prorrogaci_n%60%0AWHERE%0A%20%20caseless_one_of(%60departamento%60%2C%20%22Antioquia%22)%0A%20%20AND%20caseless_one_of(%60ciudad%60%2C%20%22san%20luis%22)"  # Reemplazar con la URL correcta
+        df = pd.read_csv(url)
+        return df
 
-# Crear pestañas
-tab1, tab2 = st.tabs(["Gráficos de Delitos", "Contrataciones"])
+    contratos_df = load_contratos_data()
+    fig = px.line(contratos_df, x='fecha', y='valor', title="Contratos en San Luis",
+                  line_shape='linear', color_discrete_sequence=['#FFFFFF', '#ADD8E6'])
 
-with tab1:
-    st.header("Gráficos de Delitos en San Luis")
+    st.plotly_chart(fig)
 
-    # Crear una cuadrícula de 3x5 para los gráficos
-    for i in range(0, len(info_graficos), 3):
-        cols = st.columns(3)
-        for j in range(3):
-            if i + j < len(info_graficos):
-                with cols[j]:
-                    color = palette[(i + j) % len(palette)]
-                    fig = create_chart(info_graficos[i + j]['url'], info_graficos[i + j]['titulo'], color)
-                    st.plotly_chart(fig, use_container_width=True)
-
-with tab2:
-    st.header("Contrataciones en San Luis")
-
-    # Cargar y mostrar datos de contrataciones
-    contratos_data = load_contratos_data()
-    st.dataframe(contratos_data)
-
-# Nota del creador
-st.markdown("---")
-st.markdown("Creado por John Alexander Echeverry Ocampo, politólogo y analista de datos")
+# Estilo general de la página
+st.markdown("""
+    <style>
+        .stApp {
+            background-color: #f4f4f4;
+        }
+        .stTabs {
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            padding: 10px;
+        }
+        .stDownloadButton {
+            margin-top: 10px;
+        }
+    </style>
+""", unsafe_allow_html=True)
