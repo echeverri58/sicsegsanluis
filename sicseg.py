@@ -20,24 +20,48 @@ def load_data(url):
     df['fecha_hecho'] = df['fecha_hecho'].dt.year
     return df
 
+# Función específica para cargar datos de laboratorios destruidos
+@st.cache_data
+def load_lab_data(url):
+    df = pd.read_csv(url)
+    df['fecha_hecho'] = pd.to_datetime(df['fecha_hecho'])
+    df['año'] = df['fecha_hecho'].dt.year
+    return df
+
 # Paleta de colores
 palette = [
     '#d73027', '#f46d43', '#fdae61', '#fee08b', '#d9ef8b', '#a6d96a',
-    '#66bd63', '#1a9850', '#006837'
+    '#66bd63', '#1a9850', '#006837', '#3399ff'  # Añadí un color extra para la nueva gráfica
 ]
 
 # Función para crear gráficos
-def create_chart(url, titulo, color):
-    df = load_data(url)
-    cantidad_por_año = df['cantidad'].groupby(df['fecha_hecho']).sum().astype('int')
+def create_chart(url, titulo, color, is_lab=False):
+    if is_lab:
+        df = load_lab_data(url)
+        df_anual = df.groupby('año')['cantidad'].sum().reset_index()
+        año_actual = datetime.now().year
+        inicio_rango = año_actual - 20
+        df_anual_reciente = df_anual[(df_anual['año'] >= inicio_rango) & (df_anual['año'] <= año_actual)]
 
-    fig = px.bar(
-        x=cantidad_por_año.index,
-        y=cantidad_por_año.values,
-        labels={'x': 'Año', 'y': 'Cantidad'},
-        title=titulo,
-        text=cantidad_por_año.values
-    )
+        fig = px.bar(
+            df_anual_reciente,
+            x='año',
+            y='cantidad',
+            labels={'año': 'Año', 'cantidad': 'Cantidad de laboratorios destruidos'},
+            title=titulo,
+            text='cantidad'
+        )
+    else:
+        df = load_data(url)
+        cantidad_por_año = df['cantidad'].groupby(df['fecha_hecho']).sum().astype('int')
+
+        fig = px.bar(
+            x=cantidad_por_año.index,
+            y=cantidad_por_año.values,
+            labels={'x': 'Año', 'y': 'Cantidad'},
+            title=titulo,
+            text=cantidad_por_año.values
+        )
 
     fig.update_layout(
         showlegend=False,
@@ -64,6 +88,7 @@ info_graficos = [
     {'url': "https://www.datos.gov.co/resource/m8fd-ahd9.csv?$query=SELECT%0A%20%20%60fecha_hecho%60%2C%0A%20%20%60cod_depto%60%2C%0A%20%20%60departamento%60%2C%0A%20%20%60cod_muni%60%2C%0A%20%20%60municipio%60%2C%0A%20%20%60zona%60%2C%0A%20%20%60sexo%60%2C%0A%20%20%60cantidad%60%0AWHERE%0A%20%20caseless_one_of(%60departamento%60%2C%20%22ANTIOQUIA%22)%0A%20%20AND%20caseless_one_of(%60municipio%60%2C%20%22SAN%20LUIS%22)", 'titulo': 'Homicidios en San Luis'},
     {'url': "https://www.datos.gov.co/resource/d7zw-hpf4.csv?$query=SELECT%0A%20%20%60fecha_hecho%60%2C%0A%20%20%60cod_depto%60%2C%0A%20%20%60departamento%60%2C%0A%20%20%60cod_muni%60%2C%0A%20%20%60municipio%60%2C%0A%20%20%60tipo_delito%60%2C%0A%20%20%60cantidad%60%0AWHERE%0A%20%20caseless_one_of(%60departamento%60%2C%20%22ANTIOQUIA%22)%0A%20%20AND%20caseless_one_of(%60municipio%60%2C%20%22SAN%20LUIS%22)%0AORDER%20BY%20%60fecha_hecho%60%20DESC%20NULL%20LAST", 'titulo': 'Secuestros en San Luis'},
     {'url': "https://www.datos.gov.co/resource/gepp-dxcs.csv?$query=SELECT%0A%20%20%60fecha_hecho%60%2C%0A%20%20%60cod_depto%60%2C%0A%20%20%60departamento%60%2C%0A%20%20%60cod_muni%60%2C%0A%20%20%60municipio%60%2C%0A%20%20%60zona%60%2C%0A%20%20%60cantidad%60%0AWHERE%0A%20%20caseless_one_of(%60departamento%60%2C%20%22ANTIOQUIA%22)%0A%20%20AND%20caseless_one_of(%60municipio%60%2C%20%22SAN%20LUIS%22)%0AORDER%20BY%20%60fecha_hecho%60%20DESC%20NULL%20LAST", 'titulo': 'Violencia intrafamiliar en San Luis'},
+    {'url': "https://www.datos.gov.co/resource/v75m-npi8.csv?$query=SELECT%0A%20%20%60fecha_hecho%60%2C%0A%20%20%60cod_depto%60%2C%0A%20%20%60departamento%60%2C%0A%20%20%60cod_muni%60%2C%0A%20%20%60municipio%60%2C%0A%20%20%60cantidad%60%2C%0A%20%20%60unidad%60%0AWHERE%0A%20%20caseless_one_of(%60departamento%60%2C%20%22antioquia%22)%0A%20%20AND%20caseless_one_of(%60municipio%60%2C%20%22san%20luis%22)%0AORDER%20BY%20%60fecha_hecho%60%20DESC%20NULL%20LAST", 'titulo': 'Laboratorios destruidos por año en San Luis, Antioquia', 'is_lab': True},
 ]
 
 # Función para cargar datos de contrataciones
@@ -99,35 +124,8 @@ with tab1:
             if i + j < len(info_graficos):
                 with cols[j]:
                     color = palette[(i + j) % len(palette)]
-                    fig = create_chart(info_graficos[i + j]['url'], info_graficos[i + j]['titulo'], color)
+                    fig = create_chart(info_graficos[i + j]['url'], info_graficos[i + j]['titulo'], color, info_graficos[i + j].get('is_lab', False))
                     st.plotly_chart(fig, use_container_width=True)
-
-    # Gráfica adicional de laboratorios destruidos
-    st.header("Laboratorios destruidos en San Luis")
-    df = load_data("https://www.datos.gov.co/resource/v75m-npi8.csv?$query=SELECT%0A%20%20%60fecha_hecho%60%2C%0A%20%20%60cod_depto%60%2C%0A%20%20%60departamento%60%2C%0A%20%20%60cod_muni%60%2C%0A%20%20%60municipio%60%2C%0A%20%20%60cantidad%60%2C%0A%20%20%60unidad%60%0AWHERE%0A%20%20caseless_one_of(%60departamento%60%2C%20%22antioquia%22)%0A%20%20AND%20caseless_one_of(%60municipio%60%2C%20%22san%20luis%22)%0AORDER%20BY%20%60fecha_hecho%60%20DESC%20NULL%20LAST")
-    df['fecha_hecho'] = pd.to_datetime(df['fecha_hecho'])
-    df['año'] = df['fecha_hecho'].dt.year
-    df_anual = df.groupby('año')['cantidad'].sum().reset_index()
-    año_actual = datetime.now().year
-    inicio_rango = año_actual - 20
-    df_anual_reciente = df_anual[(df_anual['año'] >= inicio_rango) & (df_anual['año'] <= año_actual)]
-
-    fig_lab = px.bar(
-        df_anual_reciente,
-        x='año',
-        y='cantidad',
-        labels={'año': 'Año', 'cantidad': 'Cantidad de laboratorios destruidos'},
-        title=f'Laboratorios destruidos por año en San Luis, Antioquia ({inicio_rango} - {año_actual})',
-        text='cantidad'
-    )
-
-    fig_lab.update_layout(
-        xaxis_tickangle=-90
-    )
-
-    fig_lab.update_traces(marker_color='skyblue', texttemplate='%{text}', textposition='outside')
-
-    st.plotly_chart(fig_lab, use_container_width=True)
 
 with tab2:
     st.header("Contrataciones en San Luis")
