@@ -113,15 +113,7 @@ def load_contratos_data():
     
     return data[columnas_deseadas]
 
-# Modificar 'urlproceso' para que sea clicable
-def make_clickable(url):
-    return f'<a href="{url}" target="_blank">{url}</a>'
 
-# Aplicar la función para hacer los enlaces clicables
-contratos_data['urlproceso'] = contratos_data['urlproceso'].apply(make_clickable)
-
-# Mostrar datos de contrataciones con enlaces clicables
-st.write(contratos_data.to_html(escape=False), unsafe_allow_html=True)
 
 # Crear pestañas
 tab1, tab2 = st.tabs(["Gráficos de Delitos", "Contrataciones"])
