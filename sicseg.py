@@ -1,5 +1,3 @@
-vuelvelo hacer y no falles: Te voy a pasar un codigo de stremlit para que lo modifiques necesito lo siquiente: 1. Que las graficas de delitos esten en un tab, que el tab muestre tres graficos por fila, que use una paleta de colores acordes para mostrar datos de delitos, que estas graficas de forma individual sea puedan descargar, que cada grafico tenga la nota de que son datos extraidos automaticamente del ministerio de defensa. 2. En otro Tab que muestre los contratos, que las lineas sean de dos colores intercalados, puede ser blanco y azul claro. 3. Que el diseño de la pagina sea bonito, elegante para mostrar datos, que sea moderno. 4. El codigo q mes des no escribas las URL eso lo hago yo solo deja la indicacion de donde van las url.
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
