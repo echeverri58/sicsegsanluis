@@ -101,33 +101,6 @@ with tab1:
                     fig = create_chart(info_graficos[i + j]['url'], info_graficos[i + j]['titulo'], color)
                     st.plotly_chart(fig, use_container_width=True)
 
-    # Gráfica adicional de laboratorios destruidos
-    st.header("Laboratorios destruidos en San Luis")
-    df = load_data("https://www.datos.gov.co/resource/v75m-npi8.csv?$query=SELECT%0A%20%20%60fecha_hecho%60%2C%0A%20%20%60cod_depto%60%2C%0A%20%20%60departamento%60%2C%0A%20%20%60cod_muni%60%2C%0A%20%20%60municipio%60%2C%0A%20%20%60cantidad%60%2C%0A%20%20%60unidad%60%0AWHERE%0A%20%20caseless_one_of(%60departamento%60%2C%20%22antioquia%22)%0A%20%20AND%20caseless_one_of(%60municipio%60%2C%20%22san%20luis%22)%0AORDER%20BY%20%60fecha_hecho%60%20DESC%20NULL%20LAST")
-    df['fecha_hecho'] = pd.to_datetime(df['fecha_hecho'])
-    df['año'] = df['fecha_hecho'].dt.year
-    df_anual = df.groupby('año')['cantidad'].sum().reset_index()
-    año_actual = datetime.now().year
-    inicio_rango = año_actual - 20
-    df_anual_reciente = df_anual[(df_anual['año'] >= inicio_rango) & (df_anual['año'] <= año_actual)]
-
-    fig_lab = px.bar(
-        df_anual_reciente,
-        x='año',
-        y='cantidad',
-        labels={'año': 'Año', 'cantidad': 'Cantidad de laboratorios destruidos'},
-        title=f'Laboratorios destruidos por año en San Luis, Antioquia ({inicio_rango} - {año_actual})',
-        text='cantidad'
-    )
-
-    fig_lab.update_layout(
-        xaxis_tickangle=-90
-    )
-
-    fig_lab.update_traces(marker_color='skyblue', texttemplate='%{text}', textposition='outside')
-
-    st.plotly_chart(fig_lab, use_container_width=True)
-
 with tab2:
     st.header("Contrataciones en San Luis")
 
