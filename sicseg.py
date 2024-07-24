@@ -108,7 +108,9 @@ def load_contratos_data():
         'domicilio_representante_legal', 'tipo_de_identificaci_n_representante_legal',
         'identificaci_n_representante_legal'
     ]
-
+    # Ordenar por 'fecha_de_inicio_del_contrato' de forma descendente
+    data = data[columnas_deseadas].sort_values(by='fecha_de_inicio_del_contrato', ascending=False)
+    
     return data[columnas_deseadas]
 
 # Crear pestañas
