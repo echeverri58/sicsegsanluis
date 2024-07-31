@@ -111,7 +111,7 @@ def load_contratos_data():
 
     # Ordenar por 'fecha_de_inicio_del_contrato' de forma descendente
     data = data[columnas_deseadas].sort_values(by='fecha_de_inicio_del_contrato', ascending=False)
-    
+
     return data[columnas_deseadas]
 
 # Crear pestañas
@@ -135,7 +135,24 @@ with tab2:
 
     # Cargar y mostrar datos de contrataciones
     contratos_data = load_contratos_data()
-    st.dataframe(contratos_data)
+
+    # Aplicar estilo a la tabla usando pandas
+    def estilo_tabla(df):
+        return df.style.apply(
+            lambda x: ['background-color: #f0f8ff' if i % 2 == 0 else 'background-color: #ffffff' for i in range(len(df))],
+            axis=0
+        ).set_properties(**{
+            'color': '#000000',
+            'text-align': 'center',
+            'padding': '10px',
+            'border': '1px solid #ddd'
+        }).set_table_styles({
+            'nombre_entidad': [{'selector': 'td:hover', 'props': 'background-color: #d0e0f0;'}],
+            'objeto_del_contrato': [{'selector': 'td:hover', 'props': 'background-color: #d0e0f0;'}],
+            # Añadir más columnas si es necesario
+        }).set_caption("Tabla de Contrataciones").set_table_attributes('class="dataframe"')
+
+    st.dataframe(estilo_tabla(contratos_data))
 
 # Nota del creador
 st.markdown("---")
